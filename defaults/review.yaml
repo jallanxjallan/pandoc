@@ -1,7 +1,8 @@
 ---
 reader: markdown
 writer: docx
-standalone: True
+standalone: True 
+template: review
 filters:
   - format_comments.lua
   - strip_notes.lua   

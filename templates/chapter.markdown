@@ -1,4 +1,7 @@
 
-# $title$
+## Chapter $chapter_number$
 
-**$subtitle$**
+**$chapter_title$**
+
+
+

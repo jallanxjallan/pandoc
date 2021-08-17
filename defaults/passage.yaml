@@ -1,0 +1,9 @@
+---
+writer: markdown+smart
+standalone: True
+template: passage
+filters:
+  - filter_on_status.lua
+
+
+ 

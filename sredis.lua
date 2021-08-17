@@ -17,13 +17,15 @@ function sredis.inode(filepath)
   return(stat[8])
 end
 
-function sredis.document_component_key(component, filepath)
-  local dck = 'inode:component'
-  local inode = sredis.inode(filepath)
-  dck = dck:gsub('inode', inode)
-  dck = dck:gsub('component', component)
-  component_key = sredis.query({'hget', 'document:index:inode.key', dck})
-  return component_key:gsub('\n$', '')
+function sredis.document_data_key(meta)
+  local index_key = meta['index_key']
+  local filepath = PANDOC_STATE['input_files'][1]
+  local document_key = 'document:data:'..sredis.inode(filepath)
+  sredis.query({'hsetnx', index_key, filepath, document_key})
+  sredis.query({'hsetnx', document_key, 'filepath', filepath})
+  sredis.expire(document_key, 600)
+  sredis.expire(index_key, 600)
+  return document_key
 end
 
 return sredis
