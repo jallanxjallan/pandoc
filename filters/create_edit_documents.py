@@ -1,30 +1,6 @@
 #!/home/jeremy/Python3.10Env/bin/python
 
-import datetime
-from pathlib import Path
-from utility import title_case, make_identifier
 import panflute as pf
-
-
-def write_chunk_file(doc):
-    chunk_filepath = doc.output_dir.joinpath(f"{doc.input_filename}_{doc.chunk_number}").with_suffix('.md')
-    if chunk_filepath.exists():
-      pf.debug(f"{chunk_filepath} already exists")
-    else:
-        text = ' '.join(doc.chunks) 
-        metadata = dict(name=title_case(chunk_filepath.stem), 
-                            source=doc.input_filename,
-                            created=datetime.datetime.now().isoformat(),
-                            rkey=f'edit:{make_identifier()}:new'
-                            ) 
-        args = [f'--metadata={k}:{v}' for k,v in metadata.items()] 
-        args.append('--template=edit_document') 
-        args.append(f'--output={chunk_filepath}') 
-        try:
-            pf.run_pandoc(text=text, args=args)
-        except Exception as e:
-            pf.debug(e)
-    
 
 def prepare(doc):
   meta = doc.get_metadata()
@@ -38,6 +14,7 @@ def prepare(doc):
 def action(elem, doc):
   doc.chunks.append(pf.stringify(elem)) 
   if len(doc.chunks) > doc.max_tokens_per_chunk: 
+    text = ' '.join(doc.chunks)
     write_chunk_file(doc) 
     # Update variables for the next chunk.
     doc.chunk_number += 1 
