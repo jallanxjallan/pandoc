@@ -1,7 +1,14 @@
 ---
+
+$if(name)$
 name: $name$
+$endif$
+$if(group)$
 group: $group$
+$endif$
+$if(sequence)$
 sequence: $sequence$
+$endif$
 source: $source$
 $if(start)$
 start: $start$
@@ -19,7 +26,9 @@ $if(header)$
 header: $header$
 $endif$
 created: $created$
-rdkey: $rdkey$
+$if(title)$
+title: $title$
+$endif$
 status: new 
 ---
 

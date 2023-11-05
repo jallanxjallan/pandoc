@@ -1,16 +1,14 @@
   --!/usr/local/bin/lua
-local identifier = require 'identifier'
 
-local tempdir
-local input_filepath
-local output_filepath
-local input_filename
-local output_dir
-local output_filename
-local output_extention
-local output_stem
-local input_stem
-local input_meta
+
+local source
+local directory
+local basename 
+local metadata
+
+local function padInteger(number, width)
+  return string.format("%0"..width.."d", number)
+end
 
 local function tchelper(first, rest)
      return first:upper()..rest:lower()
@@ -22,66 +20,57 @@ end
   -- This also turns hex numbers into, eg. 0Xa7d4
   -- str = str:gsub("(%a)([%w_']*)", tchelper)
 
-
-remove_header = {
-    Header = function(el)
-      if el.level == 1 then
-        return {}
-      end
-    end
-}
-
 function export_section(sequence, section)
-  -- local section_filename = output_filename:gsub('.md', '_'..section.identifier)
 
-  local file_id = identifier.uuid()
-  local json_filepath = tempdir..'/'..file_id..'.json'
-  local section_filepath = output_dir.."/"..output_stem.."-"..tostring(sequence).."-"..section.identifier.."."..output_extention
+  local sequence_string = padInteger(sequence, 3)
+  local stem = basename..'_'..sequence_string
+  local section_filepath = pandoc.path.join({directory, stem..'.md'})
+  
   local section_metadata
-  if input_meta ~= nil then
-    section_metadata = input_meta
+  if metadata ~= nil then
+    section_metadata = metadata
   else
     section_metadata = {}
   end
 
-  section_metadata['source'] = input_stem
+  section_metadata['source'] = source
   section_metadata['sequence'] = tostring(sequence)
-  section_metadata['title'] = section.identifier:gsub("-", " "):gsub("(%a)([%w_']*)", tchelper)
+  section_metadata['name'] = stem:gsub("(%a)([%w_']*)", tchelper)
 
 
-  local sub_doc = pandoc.Pandoc(section.content, section_metadata)
+  local section_doc = pandoc.Pandoc(section.content, section_metadata)
 
-  -- local div = pandoc.Div(sub_doc.blocks)
-  -- local sub_blocks = pandoc.walk_block(div.content, remove_header)
+  local tempFileName = os.tmpname() 
+  pandoc.utils.run_json_filter(section_doc, 'tee', {tempFileName})
+  
 
-  pandoc.utils.run_json_filter(sub_doc, 'tee', {json_filepath})
-
+  
+  
   local args = {
     '--standalone',
-    '--lua-filter=strip_headers.lua',
+    '--from=json',
+    '--to=markdown',
+    '--template=edit_document',
+    '--lua-filter=header_to_title.lua',
+    '--lua-filter=set_creation_date.lua',
     '--output='..section_filepath,
-    json_filepath
+    tempFileName
   }
 
-  rs = pandoc.pipe("pandoc", args, '')
-
+  rs = pandoc.pipe("pandoc", args, '') 
+  
   return section_filepath
 end
 
-function Pandoc(doc)
-  input_meta = doc.meta
-  tempdir = pandoc.pipe('mktemp', {"-d"}, ''):gsub('\n', '')
-  input_filepath = PANDOC_STATE['input_files'][1]
-  input_filename = input_filepath:match( "([^/]+)$")
-  input_extention = input_filename:match("[^.]+$")
-  input_stem = input_filename:gsub("."..input_extention, '')
-  output_filepath = PANDOC_STATE['output_file']
-  output_filename = output_filepath:match( "([^/]+)$")
-  output_dir = output_filepath:match("(.-)([^\\/]-%.?([^%.\\/]*))$")
-  output_extention = output_filename:match("[^.]+$")
-  output_stem = output_filename:gsub("."..output_extention, '')
-
-  -- namespace = input_meta['namespace']
+function Pandoc(doc) 
+  source = PANDOC_STATE['input_files'][1]
+  local filepath = PANDOC_STATE['output_file'] 
+  local filename = pandoc.path.filename(filepath) 
+  directory = pandoc.path.directory(filepath) 
+  basename = pandoc.path.split_extension(filename) 
+  metadata = doc.meta
+  
+  
   local sections = pandoc.utils.make_sections(false, 1, doc.blocks)
   if #sections == 1 then
     return doc
