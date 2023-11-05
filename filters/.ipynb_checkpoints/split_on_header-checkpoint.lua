@@ -2,11 +2,15 @@
 local identifier = require 'identifier'
 
 local tempdir
-local directory
-local filename 
-local basename 
-local sequence = 0
-
+local input_filepath
+local output_filepath
+local input_filename
+local output_dir
+local output_filename
+local output_extention
+local output_stem
+local input_stem
+local input_meta
 
 local function tchelper(first, rest)
      return first:upper()..rest:lower()
@@ -30,7 +34,7 @@ remove_header = {
 function export_section(sequence, section)
   -- local section_filename = output_filename:gsub('.md', '_'..section.identifier)
 
- 
+  local file_id = identifier.uuid()
   local json_filepath = tempdir..'/'..file_id..'.json'
   local section_filepath = output_dir.."/"..output_stem.."-"..tostring(sequence).."-"..section.identifier.."."..output_extention
   local section_metadata
@@ -64,10 +68,7 @@ function export_section(sequence, section)
   return section_filepath
 end
 
-function Pandoc(doc) 
-  local directory = pandoc.path.directory(filepath) 
-  local filename = pandoc.path.filename(filepath) 
-  local basename = pandoc.path.split_extension(filename) 
+function Pandoc(doc)
   input_meta = doc.meta
   tempdir = pandoc.pipe('mktemp', {"-d"}, ''):gsub('\n', '')
   input_filepath = PANDOC_STATE['input_files'][1]

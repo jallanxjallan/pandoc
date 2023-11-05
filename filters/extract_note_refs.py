@@ -10,9 +10,7 @@ def prepare(doc):
     doc.item_count = 0
 
 def action(elem, doc):
-    if isinstance(elem, pf.Header):
-        doc.item_count = 0
-
+    
     elif isinstance(elem, pf.CodeBlock):
         
         note_lines = []
@@ -24,7 +22,7 @@ def action(elem, doc):
             
             for note in node.notes(numbered=True):
                 line = regex.sub('^(1)\.', str(doc.item_count), note)
-                note_lines.append(pf.ListItem(pf.line))    
+                note_lines.append(pf.ListItem(line))    
                 doc.item_count += 1
         return pf.LineBlock(*note_lines)
 
