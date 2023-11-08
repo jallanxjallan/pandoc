@@ -7,26 +7,21 @@ import regex
 def prepare(doc):
     meta = doc.get_metadata()
     doc.ct = CherryTree(meta['notes_file'])
-    doc.item_count = 0
+    doc.note_count = 1
 
 def action(elem, doc):
-    if isinstance(elem, pf.Header):
-        doc.item_count = 0
-
-    elif isinstance(elem, pf.CodeBlock):
+    if isinstance(elem, pf.Code):
+        try: 
+            node = doc.ct.find_node_by_name(elem.text)
+        except Exception as e:
+            pf.debut(e)
+            return elem 
         
-        note_lines = []
-        
-        for node_ref in [l.strip().lstrip('node: ') for l in elem.text.split('\n') if l.startswith('node')]:
-            if not (node := doc.ct.find_node_by_name(node_ref)): 
-                pf.debug(f'node not found for {node_ref}') 
-                continue 
-            
-            for note in node.notes(numbered=True):
-                line = regex.sub('^(1)\.', str(doc.item_count), note)
-                note_lines.append(pf.ListItem(pf.line))    
-                doc.item_count += 1
-        return pf.LineBlock(*note_lines)
+        notes = node.notes(numbered=True) 
+        if notes is not None:
+            note_items = [pf.ListItem(pf.Para(pf.Str(regex.sub('\d*\.\s', '', n)))) for n in notes] 
+            doc.content.append(pf.OrderedList(*note_items, start=doc.note_count))
+            doc.note_count += len(note_items)
 
     return elem
 
