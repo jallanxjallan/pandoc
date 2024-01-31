@@ -4,26 +4,33 @@ import panflute as pf
 from storage import CherryTree  
 import regex
 
+def extract_notes(line, doc):
+    if (node := doc.ct.find_node_by_name(line.strip())):
+        if (notes := node.notes('numbered')):
+            for note in notes:
+                yield pf.ListItem(pf.Plain(pf.Str(regex.sub('\d*\.\s', '', note))))
+    else:
+        yield None
+
+        
+    
+
 def prepare(doc):
     meta = doc.get_metadata()
     doc.ct = CherryTree(meta['notes_file'])
     doc.note_count = 1
 
 def action(elem, doc):
-    if isinstance(elem, pf.Code):
-        try: 
-            node = doc.ct.find_node_by_name(elem.text)
-        except Exception as e:
-            pf.debut(e)
-            return elem 
-        
-        notes = node.notes(numbered=True) 
-        if notes is not None:
-            note_items = [pf.ListItem(pf.Para(pf.Str(regex.sub('\d*\.\s', '', n)))) for n in notes] 
-            doc.content.append(pf.OrderedList(*note_items, start=doc.note_count))
-            doc.note_count += len(note_items)
-
-    return elem
+    if isinstance(elem, pf.CodeBlock):
+        notes = list(filter(None, [n for l in elem.text.split('\n') for n in extract_notes(l, doc)]))
+#        note_start = doc.note_count
+#        doc.note_count += len(notes)
+        return pf.OrderedList(*notes, start=1)
+    elif isinstance(elem, pf.Code):
+        return elem
+ 
+    else:
+        return elem
 
 def main(doc=None):
     return pf.run_filter(action, prepare=prepare, doc=doc) 

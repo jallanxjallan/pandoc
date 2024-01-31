@@ -2,7 +2,8 @@
 
 
 local source
-local directory
+local source_directory
+local target_directory
 local basename 
 local metadata
 
@@ -11,7 +12,8 @@ local function padInteger(number, width)
 end
 
 local function tchelper(first, rest)
-     return first:upper()..rest:lower()
+    title = first:upper()..rest:lower()
+    return title:gsub('_', ' ') 
 end
   -- Add extra characters to the pattern if you need to. _ and ' are
   --  found in the middle of identifiers and English words.
@@ -21,10 +23,9 @@ end
   -- str = str:gsub("(%a)([%w_']*)", tchelper)
 
 function export_section(sequence, section)
-
   local sequence_string = padInteger(sequence, 3)
-  local stem = basename..'_'..sequence_string
-  local section_filepath = pandoc.path.join({directory, stem..'.md'})
+  local filename = basename..'_'..sequence_string..'.md'
+  local section_filepath = pandoc.path.join({target_directory, filename})
   
   local section_metadata
   if metadata ~= nil then
@@ -32,19 +33,13 @@ function export_section(sequence, section)
   else
     section_metadata = {}
   end
-
-  section_metadata['source'] = source
+  
   section_metadata['sequence'] = tostring(sequence)
-  section_metadata['name'] = stem:gsub("(%a)([%w_']*)", tchelper)
-
 
   local section_doc = pandoc.Pandoc(section.content, section_metadata)
 
   local tempFileName = os.tmpname() 
   pandoc.utils.run_json_filter(section_doc, 'tee', {tempFileName})
-  
-
-  
   
   local args = {
     '--standalone',
@@ -63,14 +58,16 @@ function export_section(sequence, section)
 end
 
 function Pandoc(doc) 
-  source = PANDOC_STATE['input_files'][1]
-  local filepath = PANDOC_STATE['output_file'] 
+  local filepath = PANDOC_STATE['input_files'][1] 
   local filename = pandoc.path.filename(filepath) 
-  directory = pandoc.path.directory(filepath) 
+  source_directory = pandoc.path.directory(filepath) 
   basename = pandoc.path.split_extension(filename) 
-  metadata = doc.meta
-  
-  
+  metadata = doc.meta 
+
+  td = pandoc.path.join({source_directory, basename})
+  target_directory = pandoc.path.normalize(td)
+  local cmd_string = "mkdir -p "..target_directory
+  os.execute(cmd_string)
   local sections = pandoc.utils.make_sections(false, 1, doc.blocks)
   if #sections == 1 then
     return doc

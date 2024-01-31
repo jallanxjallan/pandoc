@@ -1,7 +1,6 @@
 ---
-name: $name$
 title: $title$
-status: new 
+status: generated content
 ---
 
 $body$

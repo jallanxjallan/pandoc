@@ -3,7 +3,7 @@ input-file: /dev/null
 writer: markdown
 reader: markdown
 standalone: True
-template: document
+template: edit_document
 filters:
  - check_if_exists.lua
  - create_document.lua

@@ -1,15 +1,22 @@
 ---
-
+$if(title)$
+title: $title$
+$endif$
 $if(name)$
 name: $name$
 $endif$
 $if(group)$
 group: $group$
 $endif$
+$if(section)$
+section: $section$
+$endif$
 $if(sequence)$
 sequence: $sequence$
 $endif$
+$if(source)$
 source: $source$
+$endif$
 $if(start)$
 start: $start$
 $endif$
@@ -25,11 +32,11 @@ $endif$
 $if(header)$
 header: $header$
 $endif$
-created: $created$
-$if(title)$
-title: $title$
-$endif$
+$if(status)$
+status: $status$
+$else$
 status: new 
+$endif$ 
 ---
 
 $body$

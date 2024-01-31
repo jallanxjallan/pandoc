@@ -2,6 +2,7 @@
 
 import panflute as pf
 from document import write_chunk_files
+import regex
     
    
 def prepare(doc):

@@ -2,8 +2,10 @@
 local note_refs = {}
 
 extract_notes = {
-    Code = function (elem) 
-        table.insert(note_refs, pandoc.Str(elem.text:gsub('node: ', '')))
+    CodeBlock = function (elem) 
+        for note_ref in elem.text:gmatch("[\n]+") do
+            table.insert(note_refs, pandoc.Str(note_ref:gsub('node: ', '')))
+        end
     end
 }
 

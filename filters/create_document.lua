@@ -13,7 +13,7 @@ function Pandoc(doc)
         io.close(file) 
         os.exit() 
     end 
-    doc.meta['name'] = basename:gsub("_", " "):gsub("(%a)([%w_']*)", title_case)
+    doc.meta['title'] = basename:gsub("_", " "):gsub("(%a)([%w_']*)", title_case)
     return doc
 end
 
