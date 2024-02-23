@@ -4,7 +4,7 @@
 local source
 local source_directory
 local target_directory
-local basename 
+local target_basename 
 local metadata
 
 local function padInteger(number, width)
@@ -13,7 +13,7 @@ end
 
 local function tchelper(first, rest)
     title = first:upper()..rest:lower()
-    return title:gsub('_', ' ') 
+    return title:gsub('_', ' ').gsub("[^%w%s]", "")
 end
   -- Add extra characters to the pattern if you need to. _ and ' are
   --  found in the middle of identifiers and English words.
@@ -24,8 +24,8 @@ end
 
 function export_section(sequence, section)
   local sequence_string = padInteger(sequence, 3)
-  local filename = basename..'_'..sequence_string..'.md'
-  local section_filepath = pandoc.path.join({target_directory, filename})
+  local target_filename = target_basename..'_'..sequence_string..'.md'
+  local section_filepath = pandoc.path.join({target_directory, target_filename})
   
   local section_metadata
   if metadata ~= nil then
@@ -58,14 +58,17 @@ function export_section(sequence, section)
 end
 
 function Pandoc(doc) 
-  local filepath = PANDOC_STATE['input_files'][1] 
-  local filename = pandoc.path.filename(filepath) 
-  source_directory = pandoc.path.directory(filepath) 
-  basename = pandoc.path.split_extension(filename) 
+  local source_filepath = PANDOC_STATE['input_files'][1]
+  local source_filename = pandoc.path.filename(source_filepath) 
+  local target_filepath = PANDOC_STATE['output_file'] 
+  local target_filename = pandoc.path.filename(source_filepath)
+  target_directory = pandoc.path.directory(target_filepath) 
   metadata = doc.meta 
+  target_basename = pandoc.path.split_extension(target_filename) 
+  
 
-  td = pandoc.path.join({source_directory, basename})
-  target_directory = pandoc.path.normalize(td)
+--  td = pandoc.path.join({source_directory, basename})
+--  target_directory = pandoc.path.normalize(td)
   local cmd_string = "mkdir -p "..target_directory
   os.execute(cmd_string)
   local sections = pandoc.utils.make_sections(false, 1, doc.blocks)

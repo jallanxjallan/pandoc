@@ -11,7 +11,10 @@ end
 
 function Meta(meta) 
     if header_value ~= nil then 
-        meta['title'] = header_value 
+        a = pandoc.utils.stringify(header_value)
+        b = string.gsub(a, '_', ' ')
+        c = string.gsub(b, "[^%w%s]", "")
+        meta['title'] = c
     end 
     return meta 
 end
