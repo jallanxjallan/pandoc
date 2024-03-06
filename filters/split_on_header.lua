@@ -78,7 +78,7 @@ function Pandoc(doc)
     for sequence, section in pairs(sections) do
       if section.identifier ~= nil then
         rs = export_section(sequence, section) 
-        
+        print(rs)
       end
     end
     os.exit()
