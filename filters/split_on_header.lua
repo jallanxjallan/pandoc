@@ -1,7 +1,8 @@
   --!/usr/local/bin/lua
 
 
-local source
+local source_filepath
+local source_filename
 local source_directory
 local target_directory
 local target_basename 
@@ -35,6 +36,7 @@ function export_section(sequence, section)
   end
   
   section_metadata['sequence'] = tostring(sequence)
+  section_metadata['source'] = source_filename
 
   local section_doc = pandoc.Pandoc(section.content, section_metadata)
 
@@ -58,12 +60,13 @@ function export_section(sequence, section)
 end
 
 function Pandoc(doc) 
-  local source_filepath = PANDOC_STATE['input_files'][1]
-  local source_filename = pandoc.path.filename(source_filepath) 
-  local target_filepath = PANDOC_STATE['output_file'] 
-  local target_filename = pandoc.path.filename(source_filepath)
-  target_directory = pandoc.path.directory(target_filepath) 
   metadata = doc.meta 
+  source_filepath = PANDOC_STATE['input_files'][1]
+  source_filename = pandoc.path.filename(source_filepath) 
+  local target_filepath = PANDOC_STATE['output_file'] 
+  local target_filename = pandoc.path.filename(target_filepath)
+  target_directory = pandoc.path.directory(target_filepath) 
+  
   target_basename = pandoc.path.split_extension(target_filename) 
   
 
@@ -75,11 +78,9 @@ function Pandoc(doc)
   if #sections == 1 then
     return doc
   else
-    for sequence, section in pairs(sections) do
-      if section.identifier ~= nil then
+    for sequence, section in pairs(sections) do 
         rs = export_section(sequence, section) 
         print(rs)
-      end
     end
     os.exit()
   end

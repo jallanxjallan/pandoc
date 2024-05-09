@@ -15,7 +15,7 @@ $if(sequence)$
 sequence: $sequence$
 $endif$
 $if(source)$
-source: $source$
+source: "$source$"
 $endif$
 $if(start)$
 start: $start$
