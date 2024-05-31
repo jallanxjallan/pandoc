@@ -48,7 +48,7 @@ function export_section(sequence, section)
     '--from=json',
     '--to=markdown',
     '--template=edit_document',
-    '--lua-filter=header_to_title.lua',
+    '--lua-filter=header_to_meta.lua',
     '--lua-filter=set_creation_date.lua',
     '--output='..section_filepath,
     tempFileName
@@ -74,13 +74,12 @@ function Pandoc(doc)
 --  target_directory = pandoc.path.normalize(td)
   local cmd_string = "mkdir -p "..target_directory
   os.execute(cmd_string)
-  local sections = pandoc.utils.make_sections(false, 1, doc.blocks)
+  local sections = pandoc.utils.make_sections(true, 1, doc.blocks)
   if #sections == 1 then
     return doc
   else
     for sequence, section in pairs(sections) do 
         rs = export_section(sequence, section) 
-        print(rs)
     end
     os.exit()
   end
