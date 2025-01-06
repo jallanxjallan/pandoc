@@ -1,6 +1,7 @@
 ---
 title: $title$
-status: new
+notes: $note_ref$
+status: created manually 
 ---
 
 $body$

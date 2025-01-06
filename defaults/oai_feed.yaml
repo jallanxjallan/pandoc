@@ -3,5 +3,5 @@ writer: markdown
 standalone: True
 filters:
  - filepaths_to_meta.lua
- - print_output_filepath.lua
+ - output_filepath_only.lua
 
