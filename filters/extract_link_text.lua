@@ -17,7 +17,7 @@ local function read_markdown_file(filepath)
 end
 
 -- The filter for paragraphs
-function Para(el)
+function BulletList(el)
   local concatenated_content = {}
   local contains_link = false
 
@@ -26,6 +26,8 @@ function Para(el)
       local target = elem.target
 
       -- Check if the link is to a local markdown file
+      -- load file list if one exists in local directory
+      -- generate file list by grepping "stutus: submit:
       if target:match("%.md$") then
         contains_link = true
         -- Attempt to read the file

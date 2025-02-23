@@ -23,13 +23,15 @@ local function read_markdown_file(filepath)
   -- The filter for paragraphs
   function Para(el)
 	local concatenated_content = {}
-	local contains_link = false
+	local contains_link = false 
+    
   
 	for _, elem in ipairs(el.content) do
 	  if elem.t == "Link" then
 		local target = elem.target
   
-		-- Check if the link is to a local markdown file
+		-- Check if the link is to a local markdown file or a previously generated file list
+        
 		if target:match("%.md$") then
 		  contains_link = true
 		  -- Attempt to read the file
