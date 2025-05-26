@@ -3,32 +3,17 @@ local function is_local_markdown(link_target)
   return not link_target:match("^https?://") and link_target:match("%.md$")
 end
 
--- Check if the link points to a local markdown file
+-- Read and parse a Markdown file into Pandoc blocks using pandoc.pipe
 local function read_blocks_from_file(filepath)
-  -- Check file exists and is readable
   local file = io.open(filepath, "r")
   if not file then
-    error("Could not open file: " .. filepath)
+    io.stderr:write("Warning: could not open file '" .. filepath .. "'\n")
+    return {}
   end
   file:close()
 
-  -- Pipe markdown to JSON via pandoc
   local json = pandoc.pipe("pandoc", {"-f", "markdown", "-t", "json", filepath}, "")
-  if not json or json == "" then
-    error("Empty JSON returned from pandoc for file: " .. filepath)
-  end
-
-  -- Parse JSON into Pandoc AST
-  local success, parsed = pcall(pandoc.read, json, "json")
-  if not success or not parsed or not parsed.blocks then
-    error("Failed to parse pandoc JSON from file: " .. filepath)
-  end
-
-  -- Extra safety: check for empty blocks
-  if #parsed.blocks == 0 then
-    error("Parsed file has no content blocks: " .. filepath)
-  end
-
+  local parsed = pandoc.read(json, "json")
   return parsed.blocks
 end
 
@@ -48,7 +33,7 @@ function Para(el)
     end
   end
 
-  -- If any linked files were included, replace the whole paragraph
+  -- If we found one or more valid local .md links, return the combined blocks
   if #new_blocks > 0 then
     return new_blocks
   else
