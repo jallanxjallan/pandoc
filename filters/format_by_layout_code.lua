@@ -37,7 +37,7 @@ end
 -- notes to designer
 local function handle_note(elem)
   -- 1) Build the NOTE: strong label correctly (it wants a list of inlines)
-  local label = pandoc.Strong({ pandoc.Str("NOTE:") })
+  local label = pandoc.Strong({ pandoc.Str("LAYOUT NOTE:") })
   local spacer = pandoc.Space()
 
   -- 2) Remove the first inline (your Unicode “flag”) from the original para
