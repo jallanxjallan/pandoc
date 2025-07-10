@@ -135,10 +135,14 @@ local function layout_handle_page(elem)
 end
 
 -- Review (content) handlers
-local function content_handle_note(elem) return elem end
-local function content_handle_running(elem) return nil, elem, nil end
+local function content_handle_note(elem) return {} end
+local function content_handle_running(elem) return elem end
 local function content_handle_caption(elem) return nil, elem, nil end
-local function content_handle_boxout(elem) return nil, elem, nil end
+local function content_handle_boxout(elem) 
+    local attr = pandoc.Attr("", {}, { ["custom-style"] = "boxout" })
+    return pandoc.Div({ new_para }, attr)
+end
+
 local function content_handle_sidebar(elem) return nil, elem, nil end
 local function content_handle_quote(elem) return nil, elem, nil end
 local function content_handle_page(elem) return nil, elem, nil end
