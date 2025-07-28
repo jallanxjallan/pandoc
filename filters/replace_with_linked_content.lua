@@ -26,6 +26,7 @@ local function is_prefixed_by_symbol(inlines)
     if el.t == "Str" then
       for symbol, _ in pairs(workflow_symbols) do
         if el.text:find("^" .. symbol) then
+          print('found'..symbol)
           return true
         end
       end

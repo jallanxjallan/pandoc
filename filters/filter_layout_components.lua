@@ -24,13 +24,14 @@ local function filter_para(elem)
   -- 1) If the very first inline is an Image, leave the Para unchanged:
   local firstInline = elem.content[1]
   if firstInline and firstInline.t == "Image" then
-    return elem
   end
 
   -- 2) Otherwise, do your normal symbol test:
   local txt   = pandoc.utils.stringify(elem)
   local first = txt:match("^(" .. utf8.charpattern .. ")")
-  if comps[first] then
+  print('symbol'..first)
+  if comps[first] then 
+    print('in comps'..first)
     return nil  -- keep this paragraph
   else
     return {}   -- remove this paragraph
